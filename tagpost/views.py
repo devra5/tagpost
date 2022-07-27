@@ -1,25 +1,16 @@
 from flask import Flask, render_template, request
-import pandas as pd
-import numpy as np
 
-from scipy import sparse
-from sklearn.preprocessing import StandardScaler
-from joblib import dump, load
-
-import numpy as np
 import pandas as pd
 import gensim
-#import gensim.corpora as corpora
 from joblib import load
-#import pickle
 
 from gensim.models import TfidfModel
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 import nltk
-#nltk.download('punkt')
-#nltk.download('stopwords')
-#nltk.download('wordnet')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
 
 
