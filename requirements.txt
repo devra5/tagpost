@@ -1,7 +1,6 @@
 astroid==2.6.6
 beautifulsoup4==4.11.1
 click==8.0.4
-clyent==1.2.2
 comtypes==1.1.10
 Flask==1.1.2
 gensim==4.2.0
