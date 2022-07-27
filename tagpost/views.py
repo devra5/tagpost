@@ -54,7 +54,7 @@ def resultat():
     post_out = lemmatize(post_out)
     title_body_api['Title_body'] = [title_out + post_out]
     texts = title_body_api['Title_body']
-    texts = texts.append(data_for_tfidf['Title_body'])
+    texts = pd.concat([texts, data_for_tfidf['Title_body']])
 
     bow_corpus = [dict_bow.doc2bow(text) for text in texts]
     tfidf = TfidfModel(bow_corpus)
