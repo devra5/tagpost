@@ -22,6 +22,7 @@ app = Flask(__name__)
 @app.route('/requete',methods=['GET'])
 def dashboard():
 
+    # Affichage du template de saisie des données title et post
     return render_template('dashboard.html')
 
 @app.route('/resultat',methods=['POST'])
@@ -32,11 +33,12 @@ def resultat():
     title_in = result['Title_post']
     post_in = result['Post_content']
 
+    # Chargement des différents dictionnaires nécessaires pour le fonctionnement de l'API
     dict_bow = load('dict_bow.pkl')
     data_for_tfidf = load ('data_for_tfidf.pkl')
     dict_tag = load('dict_tag_100.pkl')
 
-
+    # Transformation des données saisies en listes de mots (mêmes transformations que notebook d'anal. explo.)
     title_body_api = pd.DataFrame()
     post_out = suppr_balises_html(post_in)
     title_out = tokenize_text(title_in)
@@ -46,14 +48,16 @@ def resultat():
     title_out = lemmatize(title_out)
     post_out = lemmatize(post_out)
     title_body_api['Title_body'] = [title_out + post_out]
+
+    # Détermination du bag of words (tfidf)
     texts = title_body_api['Title_body']
     texts = pd.concat([texts, data_for_tfidf['Title_body']])
-
     bow_corpus = [dict_bow.doc2bow(text) for text in texts]
     tfidf = TfidfModel(bow_corpus)
     bow_tv_ft_ttb = [tfidf[text] for text in bow_corpus]
     bow_tv_ft_ttb_test = [bow_tv_ft_ttb[0]]
 
+    # Utilisation des modèles préentraînés sur le bag of word (standardscaler et régression logistique)
     X_test = gensim.matutils.corpus2csc(bow_tv_ft_ttb_test, num_terms=len(dict_bow))
     X_test = X_test.T.toarray()
     scaler = load('standardscaler')
@@ -61,7 +65,7 @@ def resultat():
     clf = load('modele_reg_log')
     y_pred_test_proba = clf.predict_proba(X_test_std)
 
-    # Identification des 5 tags prédits par post
+    # Identification des 5 tags prédits
     y_pred_test_proba_w = y_pred_test_proba.copy()
     tag_predit = pd.DataFrame()
     for k in range(len(y_pred_test_proba_w)):
@@ -78,6 +82,8 @@ def resultat():
     tag_predit['List_tags'] = tag_predit[0] + ' ' + tag_predit[1] + \
                               ' ' + tag_predit[2] + ' ' + tag_predit[3] + ' ' + tag_predit[4]
     Tags_out = tag_predit.loc[0]['List_tags']
+
+    # Affichage du template de résultat
     return render_template('resultat.html', Title=title_in, Post=post_in,
                            Tags=Tags_out)
 
@@ -102,19 +108,6 @@ def lemmatize(list):
     lemmatizer = WordNetLemmatizer()
     words = [lemmatizer.lemmatize(x) for x in list]
     return words
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
         app.run()
